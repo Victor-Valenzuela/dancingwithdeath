@@ -22,3 +22,6 @@ Part 2: Create a web client for the API you just created.
 - The first layout will display a date selector showcasing the current month.
 - If you click on any date, the available hour spaces will be displayed on screen to be
 selected.
+
+Link to the app
+https://dancewithdead.herokuapp.com/
