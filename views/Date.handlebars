@@ -1,0 +1,112 @@
+<h1>Schedule an appointment</h1>
+
+<form id="form" onsubmit="event.preventDefault();">
+    <div class="form-group row w-50 mx-auto mb-3">
+        <div class="form-group col-12 col-sm-6">
+            <label class="mb-2">First name</label>
+            <input type="text" id="firstName" name="firstName" class="form-control mx-auto mb-3" />
+
+        </div>
+        <div class="form-group col-12 col-sm-6">
+            <label class="mb-2">Last name</label>
+            <input type="text" id="lastName" name="lastName" class="form-control mx-auto mb-3" />
+        </div>
+        <div class="form-group col-12 col-sm-6">
+            <label class="mb-2">Email address</label>
+            <input type="email" id="email" name="email" class="form-control mx-auto mb-3" />
+        </div>
+        <div class="form-group col-12 col-sm-6">
+            <label class="mb-2">Phone</label>
+            <input type="tel" id="phone" name="phone" class="form-control mx-auto mb-3"
+                oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');" />
+
+        </div>
+        <div class="form-group col-12 col-sm-6">
+            <label class="mb-2">Date</label>
+            <input type="date" id="day" name="day" class="form-control mx-auto mb-3" />
+        </div>
+        <div class="form-group col-12 col-sm-6">
+            <label class="mb-2">Hours</label>
+            <select id="hour" name="hour" class="form-control mx-auto mb-3" value>
+                <option> Select an hour </option>
+                <option> 09:00 </option>
+                <option> 10:00 </option>
+                <option> 11:00 </option>
+                <option> 12:00 </option>
+                <option> 13:00 </option>
+                <option> 14:00 </option>
+                <option> 15:00 </option>
+                <option> 16:00 </option>
+                <option> 17:00 </option>
+                <option> 18:00 </option>
+            </select>
+        </div>
+
+    </div>
+    <button id="send" class="btn btn-info mb-3 text-light"><a>Schedule</a></button>
+</form>
+<h3 class="text-center"><a href="/">Home</a></h3>
+
+
+<script>
+    $(function () {
+        var dateToday = new Date();
+        var month = dateToday.getMonth() + 1;
+        var day = dateToday.getDate();
+        var year = dateToday.getFullYear();
+        if (month < 10)
+            month = '0' + month.toString();
+        if (day < 10)
+            day = '0' + day.toString();
+        var maxDate = year + '-' + month + '-' + day;
+        $('#day').attr('min', maxDate);
+    });
+
+    const disableWeekend = $('#day');
+    disableWeekend.on('input', function (e) {
+        const date = new Date(this.value).getUTCDay();
+        if ([6, 0].includes(date)) {
+            e.preventDefault();
+            this.value = '';
+            alert('Weekends not allowed');
+        }
+    });
+
+    $('#send').click(async (e) => {
+        e.preventDefault();
+        const firstName = $('#firstName').val();
+        const lastName = $('#lastName').val();
+        const email = $('#email').val();
+        const phone = $('#phone').val();
+        const day = $('#day').val();
+        const hour = $('#hour').val()
+        const schedule = ['09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00'];
+
+        const payload = {
+            firstName, lastName, email, phone, day, hour
+        }
+
+        if (!schedule.includes(hour)) {
+            alert('Please select a valid hour');
+            $('#hour').val('');
+        } else if (firstName === '' || lastName === '' || email === '' || phone === '' || day === '') {
+            alert('Please fill all the fields');
+        } else if (!firstName.match(/^[a-zA-Z]+$/) || !lastName.match(/^[a-zA-Z]+$/)) {
+            alert('No numbers allowed in name and last name');
+        } else if (!email.match(/^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/)) {
+            alert('Please enter a valid email');
+        } else {
+            $('#form').submit();
+        }
+
+        try {
+            await axios.post('/date', payload);
+            alert('Successfully registered');
+            window.location.href = '/';
+        } catch ({ response }) {
+            const { data } = response
+            const { error } = data
+            alert(error)
+        }
+    });
+</script>

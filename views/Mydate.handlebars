@@ -1,0 +1,99 @@
+<h1 style="font-size: 3em;">Dancing with Death</h1>
+<h2 class="text-center">My date </h2>
+
+<form onsubmit="event.preventDefault();">
+    <div class="form-group row w-50 mx-auto mb-3">
+        <div class="form-group col-12 col-sm-6">
+            <label class="mb-2">First name</label>
+            <input id="firstName" class="form-control mx-auto mb-3" value='{{firstName}}' disabled />
+
+        </div>
+        <div class="form-group col-12 col-sm-6">
+            <label class="mb-2">Last name</label>
+            <input id="lastName" class="form-control mx-auto mb-3" value='{{lastName}}' disabled />
+        </div>
+        <div class="form-group col-12 col-sm-6">
+            <label class="mb-2">Email address</label>
+            <input id="email" class="form-control mx-auto mb-3" value='{{email}}' disabled />
+        </div>
+        <div class="form-group col-12 col-sm-6">
+            <label class="mb-2">Phone</label>
+            <input id="phone" class="form-control mx-auto mb-3" value='{{phone}}' disabled />
+
+        </div>
+        <div class="form-group col-12 col-sm-6">
+            <label class="mb-2">Date</label>
+            <input type="date" id="day" name="day" class="form-control mx-auto mb-3" value='{{date}}' />
+        </div>
+        <div class="form-group col-12 col-sm-6">
+            <label class="mb-2">Hours</label>
+            <select id="hour" name="hour" class="form-control mx-auto mb-3">
+                <option> {{hour}} </option>
+                <option> 09:00 </option>
+                <option> 10:00 </option>
+                <option> 11:00 </option>
+                <option> 12:00 </option>
+                <option> 13:00 </option>
+                <option> 14:00 </option>
+                <option> 15:00 </option>
+                <option> 16:00 </option>
+                <option> 17:00 </option>
+                <option> 18:00 </option>
+            </select>
+        </div>
+    </div>
+    <button class="btn btn-info mb-3 text-light" onclick="update()"><a>Update</a></button>
+    <button class="btn btn-danger mb-3 text-light" onclick="remove()"><a>Delete</a></button>
+</form>
+
+<h3 class="text-center"><a href="/">Home</a></h3>
+
+<script>
+    const disableWeekend = $('#day');
+    disableWeekend.on('input', function (e) {
+        const date = new Date(this.value).getUTCDay();
+        if ([6, 0].includes(date)) {
+            e.preventDefault();
+            this.value = '{{date}}';
+            alert('Weekends not allowed');
+        }
+    });
+
+    const update = async () => {
+        const firstName = $('#firstName').val();
+        const lastName = $('#lastName').val();
+        const email = $('#email').val();
+        const phone = $('#phone').val();
+        const day = $('#day').val();
+        const hour = $('#hour').val();
+
+        const payload = {
+            firstName,
+            lastName,
+            email,
+            phone,
+            day,
+            hour
+        };
+
+        try {
+            await axios.put('/update', payload);
+            alert('Successfully updated');
+        } catch ({ response }) {
+            const { data } = response
+            const { error } = data
+            alert(error)
+        }
+    }
+
+    const remove = async () => {
+        const email = '{{email}}';
+        try {
+            await axios.delete(`/delete/${email}`);
+            alert('Appointment removed successfully');
+            window.location.href = `/`
+        } catch ({ response }) {
+            alert(response.data.message);
+        }
+    }
+</script>

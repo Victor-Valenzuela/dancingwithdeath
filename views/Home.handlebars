@@ -1,0 +1,61 @@
+<h1 style="font-size: 3em;">Dancing with Death</h1>
+
+<div class="container">
+    <div class="row">
+        <div class="col align-self-center">
+            <h2 class="text">
+                Next, you can schedule a dance date with none other than Death herself, so keep this in mind:
+                <ul>
+                    <li>You can only schedule <strong>one</strong> appointment.</li>
+                    <li>Death is very demanding with its agenda, so each appointment must have your name, email,
+                        telephone,
+                        appointment
+                        date and start time.</li>
+                    <li>and most importantly, the meeting can only last <strong>one hour</strong>, more would be
+                        useless, less would
+                        be traumatic.</li>
+                </ul>
+            </h2>
+        </div>
+    </div>
+    <h3><strong>Good luck!</strong></h3>
+</div>
+<div>
+    <img src="/img/candy.png" alt="" style="height: 60px;">
+    <button class="btn btn-info"><a href="/date">Go to dance!</a></button>
+</div>
+<div class="pt-5">
+    <h4>Do you already have a reservation? You can see it here</h4>
+    <div class="container ask">
+        <div class="row">
+            <div class="col align-self-center">
+                <form id="form" onsubmit="event.preventDefault();">
+                    <div class="form-group mb-3 px-3">
+                        <div class="form-group">
+                            <label class="mb-2">Email address</label>
+                            <input type="email" id="email" name="email" class="form-control mx-auto mb-3" />
+                        </div>
+                    </div>
+                    <button id="send" onclick="search()" class="btn btn-info mb-3 text-light"><a>Check</a></button>
+
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const search = async () => {
+        const email = $('#email').val();
+        const payload = { email };
+        try {
+            const { data } = await axios.post('/verify', payload);
+            alert('You have a reservation!');
+            window.location.href = `/myDate?email=${email}`;
+        } catch ({ response }) {
+            const { data } = response
+            const { error } = data
+            alert(error)
+        }
+    }
+</script>
