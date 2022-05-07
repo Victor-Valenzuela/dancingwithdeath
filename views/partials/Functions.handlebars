@@ -1,0 +1,9 @@
+$(function () {
+var dateToday = new Date();
+var month = dateToday.getMonth() + 1;
+var day = dateToday.getDate();
+var year = dateToday.getFullYear();
+if (month < 10) month='0' + month.toString(); if (day < 10) day='0' + day.toString(); var maxDate=year + '-' + month
+    + '-' + day; $('#day').attr('min', maxDate); }); const disableWeekend=$('#day'); disableWeekend.on('input', function
+    (e) { const date=new Date(this.value).getUTCDay(); if ([6, 0].includes(date)) { e.preventDefault();
+    this.value='{{date}}' ; alert('Weekends not allowed'); } });

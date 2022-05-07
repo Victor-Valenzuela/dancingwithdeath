@@ -3,7 +3,7 @@ const app = express();
 const exphbs = require('express-handlebars');
 const bodyParser = require('body-parser');
 const { newDate, getDate, updateDate, deleteDate } = require("./app/functions");
-const port = 3000;
+const port = process.env.PORT || 3000;
 
 app.listen(port, () => {
     console.log(`El servidor esta inicializado en el puerto ${port}`);
@@ -24,15 +24,6 @@ app.engine(
         defaultLayout: 'main',
         layoutsDir: __dirname + '/views/layouts',
         partialsDir: __dirname + '/views/partials',
-        helpers: {
-            math: function (lvalue, operator, rvalue) {
-                lvalue = parseFloat(lvalue);
-                rvalue = parseFloat(rvalue);
-                return {
-                    "+": lvalue + rvalue,
-                }[operator];
-            }
-        }
     })
 );
 
@@ -63,7 +54,11 @@ app.post('/date', async (req, res) => {
         const user = await getDate(email);
         if (!user) {
             const newUser = await newDate(firstName, lastName, email, phone, day, hour);
-            res.status(200).send(newUser);
+            if (newUser) {
+                res.status(200).send(newUser);
+            } else {
+                return error
+            }
         } else {
             res.status(500).send({
                 error: 'Email already exists',
@@ -80,15 +75,16 @@ app.post('/date', async (req, res) => {
 
 app.put('/update', async (req, res) => {
     const { email, day, hour } = req.body;
-    try {
-        const update = await updateDate(email, day, hour);
-        res.status(200).send(update)
-    } catch (e) {
+    const update = await updateDate(email, day, hour);
+    if (update) {
+        res.status(200).send(update);
+    } else {
         res.status(500).send({
-            error: `Date or hour is already taken, please select another one`,
+            error: 'Date or hour is already taken, please select another one',
             code: 500
         })
     }
+
 })
 
 app.delete('/delete/:email', async (req, res) => {
@@ -111,7 +107,7 @@ app.post('/verify', async (req, res) => {
         if (user) {
             res.status(200).send(user)
         } else {
-            throw new Error('User not found');
+            return error
         }
     } catch (e) {
         res.status(500).send({

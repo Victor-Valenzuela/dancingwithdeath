@@ -49,15 +49,7 @@
 <h3 class="text-center"><a href="/">Home</a></h3>
 
 <script>
-    const disableWeekend = $('#day');
-    disableWeekend.on('input', function (e) {
-        const date = new Date(this.value).getUTCDay();
-        if ([6, 0].includes(date)) {
-            e.preventDefault();
-            this.value = '{{date}}';
-            alert('Weekends not allowed');
-        }
-    });
+    {{> Functions}}
 
     const update = async () => {
         const firstName = $('#firstName').val();
