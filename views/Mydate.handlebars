@@ -75,7 +75,9 @@
         } else {
             try {
                 const { data } = await axios.put('/update', payload);
-                if (data.success) alert(data.success);
+                if (data.error) alert(data.error);
+                else alert(data.success);
+                window.location.href = '/';
             } catch ({ response }) {
                 const { data } = response
                 const { error } = data
@@ -89,10 +91,7 @@
         try {
             const { data } = await axios.delete(`/delete/${email}`);
             if (data.error) alert(data.error);
-            else {
-                alert(data.success);
-
-            };
+            else alert(data.success);
             window.location.href = '/';
         } catch ({ response }) {
             alert(response.data.message);

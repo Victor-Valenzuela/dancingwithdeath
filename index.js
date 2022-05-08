@@ -70,7 +70,8 @@ app.put('/update', async (req, res) => {
     const { email, day, hour } = req.body;
     try {
         const update = await updateDate([email, `${day + ' ' + hour}`]);
-        res.status(200).send({ success: 'Your appointment has been updated' });
+        if (update[0]) res.status(200).send({ success: 'Your appointment has been updated' });
+        else res.status(200).send({ error: 'This email no longer has scheduled appointments' });
     } catch (error) {
         res.status(500).send({
             error: `Date or hour is already taken, please select another one`,
