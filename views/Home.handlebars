@@ -4,16 +4,16 @@
     <div class="row">
         <div class="col align-self-center">
             <h2 class="text">
-                Next, you can schedule a dance date with none other than Death itself, so keep this in mind:
+                Next, you can schedule a dance date with none other than Death itself,
+                so keep this in mind:
                 <ul>
                     <li>You can only schedule <strong>one</strong> appointment.</li>
-                    <li>Death is very demanding with its agenda, so each appointment must have your name, email,
-                        telephone,
-                        appointment
-                        date and start time.</li>
-                    <li>and most importantly, the meeting can only last <strong>one hour</strong>, more would be
-                        useless, less would
-                        be traumatic.</li>
+                    <li>Death is very demanding with its agenda, so each appointment must
+                        have your name, email, telephone, appointment date and start time.</li>
+                    <li>and most importantly, the meeting can only last
+                        <strong>one hour</strong>, more would be useless, less would be
+                        traumatic.
+                    </li>
                 </ul>
             </h2>
         </div>
@@ -21,7 +21,7 @@
     <h3><strong>Good luck!</strong></h3>
 </div>
 <div>
-    <img src="/img/candy.png" alt="" style="height: 60px;">
+    <img src="/img/candy.png" alt="" style="height: 60px;" />
     <button class="btn btn-info"><a href="/date">Go to dance!</a></button>
 </div>
 <div class="pt-5">
@@ -45,17 +45,25 @@
 </div>
 
 <script>
+
     const search = async () => {
-        const email = $('#email').val();
-        const payload = { email };
-        try {
-            const { data } = await axios.post('/verify', payload);
-            alert('You have a reservation!');
-            window.location.href = `/myDate?email=${email}`;
-        } catch ({ response }) {
-            const { data } = response
-            const { error } = data
-            alert(error)
+        const email = $('#email').val(); const payload = { email };
+        if (email === '') {
+            alert('Please enter your email');
+        } else if (!email.match(/^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/)) {
+            alert('Please enter a valid email');
+        } else {
+            try {
+                const { data } = await axios.post('/verify', payload);
+                if (data.error) alert(data.error)
+                else {
+                    alert(data.success);
+                    window.location.href = `/myDate?email=${email}`;
+                }
+            } catch ({ response }) {
+                const { error } = response.data;
+                console.log(error);
+            }
         }
-    }
+    };
 </script>

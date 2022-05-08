@@ -49,7 +49,7 @@
 <h3 class="text-center"><a href="/">Home</a></h3>
 
 <script>
-    {{> Functions}}
+    {{> Functions }}
 
     const update = async () => {
         const firstName = $('#firstName').val();
@@ -68,22 +68,32 @@
             hour
         };
 
-        try {
-            await axios.put('/update', payload);
-            alert('Successfully updated');
-        } catch ({ response }) {
-            const { data } = response
-            const { error } = data
-            alert(error)
+        if (day == '') {
+            alert('Please enter a date');
+        } else if (day == '{{date}}' && hour == '{{hour}}') {
+            alert('This is your current appointment, please select another date and hour');
+        } else {
+            try {
+                const { data } = await axios.put('/update', payload);
+                if (data.success) alert(data.success);
+            } catch ({ response }) {
+                const { data } = response
+                const { error } = data
+                alert(error)
+            }
         }
     }
 
     const remove = async () => {
         const email = '{{email}}';
         try {
-            await axios.delete(`/delete/${email}`);
-            alert('Appointment removed successfully');
-            window.location.href = `/`
+            const { data } = await axios.delete(`/delete/${email}`);
+            if (data.error) alert(data.error);
+            else {
+                alert(data.success);
+
+            };
+            window.location.href = '/';
         } catch ({ response }) {
             alert(response.data.message);
         }

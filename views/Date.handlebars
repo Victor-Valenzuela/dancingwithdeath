@@ -49,7 +49,7 @@
 
 
 <script>
-    {{> Functions}}
+   {{> Functions }}
 
     $('#send').click(async (e) => {
         e.preventDefault();
@@ -59,16 +59,12 @@
         const phone = $('#phone').val();
         const day = $('#day').val();
         const hour = $('#hour').val()
-        const schedule = ['09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00'];
 
         const payload = {
             firstName, lastName, email, phone, day, hour
         }
 
-        if (!schedule.includes(hour)) {
-            alert('Please select a valid hour');
-            $('#hour').val('');
-        } else if (firstName === '' || lastName === '' || email === '' || phone === '' || day === '') {
+        if (firstName === '' || lastName === '' || email === '' || phone === '' || day === '' || hour === 'Select an hour') {
             alert('Please fill all the fields');
         } else if (!firstName.match(/^[a-zA-Z]+$/) || !lastName.match(/^[a-zA-Z]+$/)) {
             alert('No numbers allowed in name and last name');
@@ -76,16 +72,18 @@
             alert('Please enter a valid email');
         } else {
             $('#form').submit();
+            try {
+                const { data } = await axios.post('/date', payload);
+                if (data.error) alert(data.error);
+                else {
+                    alert(data.success);
+                    window.location.href = '/';
+                };
+            } catch ({ response }) {
+                const { error } = response.data
+                alert(error);
+            }
         }
 
-        try {
-            await axios.post('/date', payload);
-            alert('Successfully registered');
-            window.location.href = '/';
-        } catch ({ response }) {
-            const { data } = response
-            const { error } = data
-            alert(error)
-        }
     });
 </script>

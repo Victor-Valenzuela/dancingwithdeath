@@ -2,56 +2,50 @@ const { Pool } = require('pg');
 require('dotenv').config();
 
 const pool = new Pool({
-    user: `${process.env.user}`,
-    host: `${process.env.host}`,
-    port: process.port,
-    password: `${process.env.password}`,
-    database: `${process.env.database}`,
+    user: `${process.env.USER}`,
+    host: `${process.env.HOST}`,
+    port: process.DATABASEPORT,
+    password: `${process.env.PASSWORD}`,
+    database: `${process.env.DATABASE}`,
 });
 
-async function newDate(firstName, lastName, email, phone, appointment, hour) {
-    try {
-        const result = await pool.query(
-            `INSERT INTO appointments
-            (firstName,lastName,email,phone,appointment)
-            VALUES ('${firstName}','${lastName}','${email}','${phone}','${appointment + ' ' + hour}') RETURNING *`);
-        console.log(`Appointment by ${result.rows[0].firstname} created successfully`);
-        return result.rows;
-    } catch (error) {
-        console.log('Date or hour is already taken', e);
-        return error;
-    }
-}
 
-async function getDate(email) {
-    try {
-        const result = await pool.query(`SELECT * FROM appointments WHERE email = '${email}'`)
-        return result.rows[0];
-    } catch (error) {
-        console.log('Email not found', e);
-        return error;
-    }
-}
 
-async function updateDate(email, appointment, hour) {
-    try {
-        const result = await pool.query(
-            `update appointments set appointment = '${appointment + ' ' + hour}' WHERE email = '${email}' RETURNING *`);
-        console.log(`Appointment updated successfully`);
-        return result.rows;
-    } catch (error) {
-        console.log('Date is already taken', e);
-        return error;
-    }
-}
-async function deleteDate(email) {
-    try {
-        const result = await pool.query(`DELETE FROM appointments WHERE email = '${email}' RETURNING *`);
-        console.log('Appointment deleted successfully');
-        return result.rows;
-    } catch (e) {
-        console.log(e);
-    }
-}
+const newDate = async (values) => {
+    const query = {
+        text: 'insert into appointments (firstName,lastName,email,phone,appointment) VALUES ($1, $2, $3, $4, $5) RETURNING *;',
+        values: values
+    };
+    const result = await pool.query(query);
+    return result.rows;
+};
+
+const getDate = async (email) => {
+    const query = {
+        text: 'SELECT * FROM appointments WHERE email = $1',
+        values: [email]
+    };
+    const result = await pool.query(query);
+    return result.rows[0];
+};
+
+const updateDate = async (values) => {
+    const query = {
+        text: 'update appointments set appointment = $2 WHERE email = $1 RETURNING *',
+        values
+    };
+    const result = await pool.query(query);
+    return result.rows;
+};
+
+const deleteDate = async (email) => {
+    const query = {
+        text: 'delete from appointments where email = $1 RETURNING *',
+        values: [email]
+    };
+    const result = await pool.query(query);
+    return result.rows;
+};
+
 
 module.exports = { newDate, getDate, updateDate, deleteDate };

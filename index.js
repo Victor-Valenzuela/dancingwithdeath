@@ -52,19 +52,25 @@ app.post('/date', async (req, res) => {
     const { firstName, lastName, email, phone, day, hour } = req.body;
     try {
         const user = await getDate(email);
-        if (!user) {
-            const newUser = await newDate(firstName, lastName, email, phone, day, hour);
-            if (newUser) {
-                res.status(200).send(newUser);
-            } else {
-                return error
-            }
-        } else {
-            res.status(500).send({
-                error: 'Email already exists',
-                code: 500
-            })
+        if (user) res.status(200).send({ error: 'Email already exists', code: 200 });
+        else {
+            const newUser = await newDate([firstName, lastName, email, phone, `${day + ' ' + hour}`]);
+            res.status(200).send({ newUser, success: 'Your appointment has been scheduled' });
+
         }
+    } catch (error) {
+        res.status(500).send({
+            error: `Date or hour is already taken, please select another one`,
+            code: 500
+        });
+    }
+});
+
+app.put('/update', async (req, res) => {
+    const { email, day, hour } = req.body;
+    try {
+        const update = await updateDate([email, `${day + ' ' + hour}`]);
+        res.status(200).send({ success: 'Your appointment has been updated' });
     } catch (error) {
         res.status(500).send({
             error: `Date or hour is already taken, please select another one`,
@@ -73,25 +79,12 @@ app.post('/date', async (req, res) => {
     }
 })
 
-app.put('/update', async (req, res) => {
-    const { email, day, hour } = req.body;
-    const update = await updateDate(email, day, hour);
-    if (update) {
-        res.status(200).send(update);
-    } else {
-        res.status(500).send({
-            error: 'Date or hour is already taken, please select another one',
-            code: 500
-        })
-    }
-
-})
-
 app.delete('/delete/:email', async (req, res) => {
     const { email } = req.params;
     try {
         const user = await deleteDate(email);
-        res.status(200).send(user);
+        if (user[0]) res.status(200).send({ success: 'Your appointment has been deleted' });
+        else res.status(200).send({ error: 'This email no longer has scheduled appointments' });
     } catch (e) {
         res.status(500).send({
             error: `Something went wrong... ${e}`,
@@ -104,17 +97,12 @@ app.post('/verify', async (req, res) => {
     const { email } = req.body;
     try {
         const user = await getDate(email);
-        if (user) {
-            res.status(200).send(user)
-        } else {
-            return error
-        }
+        if (user) res.status(200).send({ success: 'This mail have one appointment' });
+        else res.status(200).send({ error: 'This email has no appointments' });
     } catch (e) {
         res.status(500).send({
-            error: 'You do not have a reservation!',
+            error: e,
             code: 500
         })
     }
-
 });
-
