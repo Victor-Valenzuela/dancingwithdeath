@@ -2,7 +2,7 @@
 <h2 class="text-center">My date </h2>
 
 <form onsubmit="event.preventDefault();">
-    <div class="form-group row w-50 mx-auto mb-3">
+    <div class="form-group row w-50 mx-auto mb-5">
         <div class="form-group col-12 col-sm-6">
             <label class="mb-2">First name</label>
             <input id="firstName" class="form-control mx-auto mb-3" value='{{firstName}}' disabled />
@@ -23,22 +23,12 @@
         </div>
         <div class="form-group col-12 col-sm-6">
             <label class="mb-2">Date</label>
-            <input type="date" id="day" name="day" class="form-control mx-auto mb-3" value='{{date}}' />
+            <input data-toggle="tooltip" data-placement="top" title="Please, change the date first to see the hours available"  type="date" id="day" name="day" class="appointment form-control mx-auto mb-3" value='{{date}}' />
         </div>
         <div class="form-group col-12 col-sm-6">
             <label class="mb-2">Hours</label>
-            <select id="hour" name="hour" class="form-control mx-auto mb-3">
-                <option> {{hour}} </option>
-                <option> 09:00 </option>
-                <option> 10:00 </option>
-                <option> 11:00 </option>
-                <option> 12:00 </option>
-                <option> 13:00 </option>
-                <option> 14:00 </option>
-                <option> 15:00 </option>
-                <option> 16:00 </option>
-                <option> 17:00 </option>
-                <option> 18:00 </option>
+            <select id="hour" name="hour" class="appointment form-control mx-auto mb-3">
+                <option> {{hour}} <== Your scheduled hour</option>
             </select>
         </div>
     </div>
@@ -46,10 +36,32 @@
     <button class="btn btn-danger mb-3 text-light btn-outline-light" onclick="remove()"><a>Delete</a></button>
 </form>
 
-<h3 class="text-center"><a href="/">Home</a></h3>
+<button class="btn btn-info mb-3 text-light btn-light bg-dark btn-outline-light btn-sm" ><a href="/">Home</a></button>
 
 <script>
+    $(document).ready(function () {
+        $('[data-toggle="tooltip"]').tooltip({placement: 'bottom',trigger: 'manual'}).tooltip('show');
+    });
+    
     {{> Functions }}
+
+    $('#day').change(async () => {
+        $('[data-toggle="tooltip"]').tooltip('hide');
+        const day = $('#day').val();
+        const payload = { day }
+        const { data } = await axios.post('/hours', payload);
+        const disableArray = data.notAvailable
+        const availableArray = ['09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00']
+        $('#hour').empty()
+        $('#hour').append(`<option> Select an hour </option>`)
+        availableArray.forEach(hour => {
+            if (disableArray.includes(hour)) {
+                $('#hour').append(`<option disabled> ${hour} </option>`)
+            } else {
+                $('#hour').append(`<option> ${hour} </option>`)
+            }
+        })
+    })  
 
     const update = async () => {
         const firstName = $('#firstName').val();
@@ -70,8 +82,10 @@
 
         if (day == '') {
             alert('Please enter a date');
-        } else if (day == '{{date}}' && hour == '{{hour}}') {
+        } else if (day == '{{date}}' && hour == '{{hour}} <== Your scheduled time') {
             alert('This is your current appointment, please select another date and hour');
+        } else if(hour == 'Select an hour'){
+            alert('Please select an hour');
         } else {
             try {
                 const { data } = await axios.put('/update', payload);

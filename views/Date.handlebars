@@ -49,6 +49,8 @@
 
 
 <script>
+    {{> Functions }}
+    
     $('#day').change(async () => {
         const day = $('#day').val();
         const payload = { day }
@@ -64,9 +66,7 @@
                 $('#hour').append(`<option> ${hour} </option>`)
             }
         })
-    })
-
-    {{> Functions }}
+    })    
 
     $('#send').click(async (e) => {
         e.preventDefault();
