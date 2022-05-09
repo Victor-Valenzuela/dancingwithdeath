@@ -43,13 +43,30 @@
         </div>
 
     </div>
-    <button id="send" class="btn btn-info mb-3 text-light"><a>Schedule</a></button>
+    <button id="send" class="btn btn-info mb-3 text-light btn-outline-light"><a>Schedule</a></button>
 </form>
-<h3 class="text-center"><a href="/">Home</a></h3>
+<button class="btn btn-info mb-3 text-light btn-light bg-dark btn-outline-light btn-sm" ><a href="/">Home</a></button>
 
 
 <script>
-   {{> Functions }}
+    $('#day').change(async () => {
+        const day = $('#day').val();
+        const payload = { day }
+        const { data } = await axios.post('/hours', payload);
+        const disableArray = data.notAvailable
+        const availableArray = ['09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00']
+        $('#hour').empty()
+        $('#hour').append(`<option> Select an hour </option>`)
+        availableArray.forEach(hour => {
+            if (disableArray.includes(hour)) {
+                $('#hour').append(`<option disabled> ${hour} </option>`)
+            } else {
+                $('#hour').append(`<option> ${hour} </option>`)
+            }
+        })
+    })
+
+    {{> Functions }}
 
     $('#send').click(async (e) => {
         e.preventDefault();
@@ -84,6 +101,5 @@
                 alert(error);
             }
         }
-
     });
 </script>

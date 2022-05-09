@@ -9,11 +9,9 @@ const pool = new Pool({
     database: `${process.env.DATABASE}`,
 });
 
-
-
 const newDate = async (values) => {
     const query = {
-        text: 'insert into appointments (firstName,lastName,email,phone,appointment) VALUES ($1, $2, $3, $4, $5) RETURNING *;',
+        text: 'insert into appointments (firstName,lastName,email,phone,appointment, day, time) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *;',
         values: values
     };
     const result = await pool.query(query);
@@ -29,9 +27,18 @@ const getDate = async (email) => {
     return result.rows[0];
 };
 
+const hoursAvailable = async (day) => {
+    const query = {
+        text: 'SELECT time FROM appointments where day = $1',
+        values: [day]
+    }
+    const result = await pool.query(query);
+    return result.rows;
+}
+
 const updateDate = async (values) => {
     const query = {
-        text: 'update appointments set appointment = $2 WHERE email = $1 RETURNING *',
+        text: 'update appointments set appointment = $2, day =$3, time=$4 WHERE email = $1 RETURNING *',
         values
     };
     const result = await pool.query(query);
@@ -47,5 +54,4 @@ const deleteDate = async (email) => {
     return result.rows;
 };
 
-
-module.exports = { newDate, getDate, updateDate, deleteDate };
+module.exports = { newDate, getDate, updateDate, deleteDate, hoursAvailable };

@@ -2,7 +2,7 @@ const express = require('express');
 const app = express();
 const exphbs = require('express-handlebars');
 const bodyParser = require('body-parser');
-const { newDate, getDate, updateDate, deleteDate } = require("./app/functions");
+const { newDate, getDate, updateDate, deleteDate, hoursAvailable } = require("./app/functions");
 const port = process.env.PORT || 3000;
 
 app.listen(port, () => {
@@ -54,7 +54,7 @@ app.post('/date', async (req, res) => {
         const user = await getDate(email);
         if (user) res.status(200).send({ error: 'Email already exists', code: 200 });
         else {
-            const newUser = await newDate([firstName, lastName, email, phone, `${day + ' ' + hour}`]);
+            const newUser = await newDate([firstName, lastName, email, phone, `${day + ' ' + hour}`, day, hour]);
             res.status(200).send({ newUser, success: 'Your appointment has been scheduled' });
 
         }
@@ -69,7 +69,7 @@ app.post('/date', async (req, res) => {
 app.put('/update', async (req, res) => {
     const { email, day, hour } = req.body;
     try {
-        const update = await updateDate([email, `${day + ' ' + hour}`]);
+        const update = await updateDate([email, `${day + ' ' + hour}`, day, hour]);
         if (update[0]) res.status(200).send({ success: 'Your appointment has been updated' });
         else res.status(200).send({ error: 'This email no longer has scheduled appointments' });
     } catch (error) {
@@ -107,3 +107,19 @@ app.post('/verify', async (req, res) => {
         })
     }
 });
+
+app.post('/hours', async (req, res) => {
+    const { day } = req.body;
+    try {
+        const hours = await hoursAvailable(day);
+        const notAvailable = hours.map(hour => hour.time)
+        res.status(200).send({ notAvailable });
+    } catch (e) {
+        res.status(500).send({
+            error: e,
+            code: 500
+        })
+    }
+}
+)
+
